@@ -1,3 +1,10 @@
+/**
+ * @file server_interface.hpp
+ * ----------
+ * @author Bartolone, Kai
+ * @date June 2021
+ */
+
 #ifndef _SERVER_INTERFACE
 #define _SERVER_INTERFACE
 
