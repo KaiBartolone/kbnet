@@ -18,7 +18,7 @@ class mock_client : public client_interface
 {
   public:
     mock_client() : client_interface() {}
-    // void on_disconnect() override { std::cout << "[Client] on_disconnect called" << std::endl; }
+    void on_disconnect() override { std::cout << "[Client] on_disconnect called" << std::endl; }
 
   private:
     net_info_t data;
@@ -28,7 +28,7 @@ class mock_server : public server_interface
 {
   public:
     mock_server(uint16_t port) : server_interface(port) {}
-    // void on_disconnect() override { std::cout << "[Server] on_disconnect called" << std::endl; }
+    void on_disconnect() override { std::cout << "[Server] on_disconnect called" << std::endl; }
 
   private:
     net_info_t data;
@@ -69,7 +69,7 @@ TEST_F(network_test, client_connect_disconnect)
     // mock_server s(80);
     ms.start();
 
-    mcl.connect("192.168.1.29", DEFAULT_PORT);
+    mcl.connect("localhost", DEFAULT_PORT);
     sleep();
     ASSERT_EQ(ms.has_connection(), true);
 
@@ -83,7 +83,7 @@ TEST_F(network_test, client_connect_disconnect)
 TEST_F(network_test, basic_send_receive1)
 {
     ms.start();
-    mcl.connect("192.168.1.29", DEFAULT_PORT);
+    mcl.connect("localhost", DEFAULT_PORT);
     sleep(500);
     mcl.send(stdmsg);
     sleep(1000);
@@ -93,7 +93,7 @@ TEST_F(network_test, basic_send_receive1)
 TEST_F(network_test, basic_send_receive2)
 {
     ms.start();
-    mcl.connect("192.168.1.29", DEFAULT_PORT);
+    mcl.connect("localhost", DEFAULT_PORT);
     mcl.send(stdmsg);
     mcl.send(stdmsg);
     mcl.send(stdmsg);
