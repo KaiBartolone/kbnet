@@ -17,6 +17,7 @@ kbnet::server_interface::~server_interface() { stop(); }
 
 void kbnet::server_interface::start()
 {
+    if (accepting_connections) return;
     std::cout << "[SERVER] starting" << std::endl;
     accepting_connections = true;
     accept();
@@ -72,9 +73,10 @@ void kbnet::server_interface::accept()
             // Release previous session and construct new session
             std::unique_lock<std::recursive_mutex> ul(session_mutex);
             release();
-            std::function<void(std::error_code ec)> handler =
-                std::bind(&server_interface::error_handler, this, std::placeholders::_1);
-            m_session = new session(std::move(socket), m_incoming, handler);
+            std::function<void()> fn =
+                std::bind(&server_interface::on_disconnect, this);
+            this->on_connect();
+            m_session = new session(std::move(socket), m_incoming, fn);
         });
 }
 
@@ -84,10 +86,4 @@ void kbnet::server_interface::release()
     if (m_session == nullptr) return;
     delete m_session;
     m_session = nullptr;
-}
-
-void kbnet::server_interface::error_handler(std::error_code ec)
-{
-    std::unique_lock<std::mutex> handler_mutex;
-    std::cout << "[CLIENT] error: " << ec.message() << std::endl;
 }

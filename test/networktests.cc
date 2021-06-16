@@ -18,7 +18,8 @@ class mock_client : public client_interface
 {
   public:
     mock_client() : client_interface() {}
-    void on_disconnect() override { std::cout << "[Client] on_disconnect called" << std::endl; }
+    // void on_connect() override { std::cout << "[Client] on_connect called" << std::endl; }
+    // void on_disconnect() override { std::cout << "[Client] on_disconnect called" << std::endl; }
 
   private:
     net_info_t data;
@@ -28,7 +29,7 @@ class mock_server : public server_interface
 {
   public:
     mock_server(uint16_t port) : server_interface(port) {}
-    void on_disconnect() override { std::cout << "[Server] on_disconnect called" << std::endl; }
+    // void on_disconnect() override { std::cout << "[Server] on_disconnect called" << std::endl; }
 
   private:
     net_info_t data;

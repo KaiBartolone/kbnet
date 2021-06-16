@@ -50,7 +50,7 @@ bool kbnet::client_interface::send(const message& msg)
     {
         return m_session->send(msg);
     }
-    return false;
+    return has_connection();
 }
 
 void kbnet::client_interface::push(const message& msg)
@@ -62,11 +62,6 @@ void kbnet::client_interface::push(const message& msg)
     }
 }
 
-void kbnet::client_interface::error_handler(std::error_code ec)
-{
-    std::unique_lock<std::mutex> handler_mutex;
-    std::cout << "[CLIENT] error: " << ec.message() << std::endl;
-}
 
 bool kbnet::client_interface::connect(const asio::ip::tcp::resolver::results_type& endpoints)
 {
@@ -80,9 +75,9 @@ bool kbnet::client_interface::connect(const asio::ip::tcp::resolver::results_typ
     asio::connect(socket, endpoints, ec);
     if (!ec)
     {
-        std::function<void(std::error_code ec)> handler =
-            std::bind(&client_interface::error_handler, this, std::placeholders::_1);
-        m_session = new session(std::move(socket), m_incoming, handler);
+        std::function<void()> fn = std::bind(&client_interface::on_disconnect, this);
+        on_connect();
+        m_session = new session(std::move(socket), m_incoming, fn);
     }
     else
     {

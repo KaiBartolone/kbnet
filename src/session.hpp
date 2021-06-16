@@ -12,11 +12,11 @@
 #include <sdkddkver.h>
 #endif
 
-#include <functional>
+#include "message.h"
 #include <asio.hpp>
+#include <functional>
 #include <semaphore.h>
 #include <tsqueue.h>
-#include "message.h"
 
 // using namespace boost;
 namespace kbnet
@@ -34,7 +34,7 @@ class session
 {
   public:
     session(asio::ip::tcp::socket socket, tsqueue<message>& incoming,
-            const std::function<void(std::error_code ec)>& error_handler);
+            std::function<void()> on_disconnect);
     ~session();
 
     /**
@@ -91,6 +91,13 @@ class session
     void stop();
     void stop(std::error_code ec);
 
+    /**
+     * @fn error_handler
+     * ----------
+     * @brief: Called when session reads an error.
+     */
+    void error_handler(std::error_code ec);
+
   protected:
     std::atomic_bool m_stop_writing;
     kbthread::semaphore m_write_sm;
@@ -102,7 +109,8 @@ class session
     message m_temp_msg;
 
     asio::ip::tcp::socket m_socket;
-    std::function<void(std::error_code ec)> m_error_handler;
+    // std::function<void(std::error_code ec)> m_error_handler;
+    std::function<void()> m_on_disconnect;
 };
 } // namespace kbnet
 #endif

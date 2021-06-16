@@ -8,8 +8,8 @@
 #include "session.hpp"
 
 kbnet::session::session(asio::ip::tcp::socket socket, tsqueue<message>& incoming,
-                        const std::function<void(std::error_code ec)>& error_handler)
-    : m_socket(std::move(socket)), m_incoming(std::ref(incoming)), m_error_handler(error_handler)
+                        std::function<void()> on_disconnect)
+    : m_socket(std::move(socket)), m_incoming(std::ref(incoming)), m_on_disconnect(on_disconnect)
 {
     // Begin asynchronous read and write of socket
     read_header();
@@ -74,7 +74,7 @@ void kbnet::session::read_header()
                          }
                          else
                          {
-                             stop();
+                             stop(ec);
                          }
                      });
 }
@@ -92,7 +92,7 @@ void kbnet::session::read_body()
                          }
                          else
                          {
-                             stop();
+                             stop(ec);
                          }
                      });
 }
@@ -104,8 +104,12 @@ void kbnet::session::stop(std::error_code ec)
     m_write_sm.signal();
 
     // Close socket
-    m_socket.close();
-    m_error_handler(ec);
+    if (valid())
+    {
+error_handler(ec);
+        m_socket.close();
+        m_on_disconnect();
+    }
 
     // Join writing thread
     if (m_writer.joinable()) m_writer.join();
@@ -118,8 +122,17 @@ void kbnet::session::stop()
     m_write_sm.signal();
 
     // Close socket
-    m_socket.close();
+    if (valid())
+    {
+        m_socket.close();
+        m_on_disconnect();
+    }
 
     // Join writing thread
     if (m_writer.joinable()) m_writer.join();
+}
+
+void kbnet::session::error_handler(std::error_code ec)
+{
+    std::cout << "[CLIENT] error: " << ec.message() << std::endl;
 }

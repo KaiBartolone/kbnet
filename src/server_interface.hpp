@@ -12,21 +12,21 @@
 #include <sdkddkver.h>
 #endif
 
+#include "message.h"
+#include "session.hpp"
+#include "tsqueue.h"
+#include <asio.hpp>
 #include <atomic>
 #include <mutex>
 #include <thread>
-#include <asio.hpp>
-#include "session.hpp"
-#include "tsqueue.h"
-#include "message.h"
 
 namespace kbnet
 {
-    /**
-     * @class server_interface
-     * ----------
-     * @brief: Continously listens on a port and makes connections
-     */
+/**
+ * @class server_interface
+ * ----------
+ * @brief: Continously listens on a port and makes connections
+ */
 class server_interface
 {
   public:
@@ -68,17 +68,10 @@ class server_interface
      */
     void push(const message& msg);
 
-    // virtual void on_disconnect() {}
-    // virtual void on_connect() {}
-    // virtual void process_message() {}
-    protected:
-    /**
-     * @fn error_handler
-     * ----------
-     * @brief: Called when session reads an error code.
-     */
-    void error_handler(std::error_code ec);
+    void on_disconnect() {}
+    void on_connect() {}
 
+  protected:
     /**
      * @fn accept
      * ----------
@@ -104,8 +97,6 @@ class server_interface
 
     session* m_session = nullptr;
     std::recursive_mutex session_mutex;
-
-    std::mutex handler_mutex;
 
     asio::ip::tcp::acceptor m_acceptor; // Handles new incoming connection attempts...
 };

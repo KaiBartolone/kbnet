@@ -12,13 +12,13 @@
 #include <sdkddkver.h>
 #endif
 
+#include "message.h"
+#include "session.hpp"
+#include "tsqueue.h"
+#include <asio.hpp>
 #include <functional>
 #include <mutex>
 #include <thread>
-#include <asio.hpp>
-#include "session.hpp"
-#include "tsqueue.h"
-#include "message.h"
 
 namespace kbnet
 {
@@ -70,19 +70,12 @@ class client_interface
      */
     void push(const message& msg);
 
-    // virtual void on_disconnect() {std::cout << "tramp" << std::endl;}
-    // virtual void on_connect() {}
-    // virtual void process_message() {}
+    void on_disconnect() {}
+    void on_connect() {}
+
   protected:
     /**
-     * @fn error_handler
-     * ----------
-     * @brief: Called when session reads an error.
-     */
-    void error_handler(std::error_code ec);
-
-    /**
-     * @fn error_handler
+     * @fn connect
      * ----------
      * @brief: Connect but uses endpoints.
      */
@@ -102,8 +95,6 @@ class client_interface
     std::thread m_context_thread;
 
     session* m_session = nullptr;
-
-    std::mutex handler_mutex;
 };
 } // namespace kbnet
 #endif
